@@ -37,7 +37,6 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
@@ -55,8 +54,9 @@ dependencies {
     implementation "com.github.bumptech.glide:okhttp-integration:$glide_version"
     kapt "com.github.bumptech.glide:compiler:$glide_version"
 
-    // https://github.com/Shouheng88/Compressor
-    implementation 'com.github.Shouheng88:compressor:1.6.0'
     //File utils
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+
+    // https://github.com/zetbaitsu/Compressor
+    implementation 'id.zelory:compressor:3.0.1'
 }
