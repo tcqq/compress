@@ -57,4 +57,6 @@ dependencies {
 
     // https://github.com/Shouheng88/Compressor
     implementation 'com.github.Shouheng88:compressor:1.6.0'
+    //File utils
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 }

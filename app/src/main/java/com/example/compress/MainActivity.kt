@@ -2,10 +2,11 @@ package com.example.compress
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.canhub.cropper.CropImageContract
@@ -18,6 +19,8 @@ import kotlinx.coroutines.withContext
 import me.shouheng.compress.Compress
 import me.shouheng.compress.concrete
 import me.shouheng.compress.strategy.config.ScaleMode
+import org.apache.commons.io.FileUtils
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,12 +30,28 @@ class MainActivity : AppCompatActivity() {
 
     private val profileImageCrop = registerForActivityResult(CropImageContract()) { result ->
         if (result.isSuccessful) {
-            val imagePath = result.getUriFilePath(this)!!
+            //val imagePath = result.getUriFilePath(this)!!
             binding.image.setImageURI(result.uriContent)
 
-            // FIXME: compress image
-/*            lifecycleScope.launch(Dispatchers.Main) {
-                val compressedImagePath = Compress.with(this@MainActivity, imagePath)
+            if (result.uriContent == null) {
+                return@registerForActivityResult
+                //show error invalid file
+            }
+
+            lifecycleScope.launch(Dispatchers.Main) {
+
+                val imageFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    createTempFileFromUri(name = "temp", uri = result.uriContent!!)
+                } else {
+                    File(result.getUriFilePath(this@MainActivity).toString())
+                }
+
+                if(imageFile == null){
+                    return@launch
+                    //show error
+                }
+
+                val compressedImagePath = Compress.with(this@MainActivity, imageFile)
                     .setQuality(80)
                     .concrete {
                         withMaxWidth(100f)
@@ -45,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 GlideApp.with(this@MainActivity)
                     .load(compressedImagePath)
                     .into(binding.image)
-            }*/
+            }
         } else {
             Log.e(TAG, result.error?.message!!)
         }
@@ -78,4 +97,29 @@ class MainActivity : AppCompatActivity() {
         activityTitle = "Adjust image",
         outputCompressFormat = Bitmap.CompressFormat.PNG
     )
+
+    private suspend fun createTempFileFromUri(
+        uri: Uri,
+        name: String,
+    ): File? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val ext = try {
+                    uri.toString().substring(uri.toString().lastIndexOf("."))
+                } catch (e: Exception) {
+                    ".png"
+                }
+                val stream = contentResolver.openInputStream(uri)
+                val file = File.createTempFile(name, ext, cacheDir)
+                FileUtils.copyInputStreamToFile(
+                    stream,
+                    file
+                )
+                file
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
 }
