@@ -3,4 +3,4 @@ Compress Image
 
 # Screenshots
 
-![Screenshot](/screenshots/screenshot.jpeg)
+![Screenshot](/screenshots/screenshot.png)
