@@ -55,7 +55,7 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:$glide_version"
 
     //File utils
-    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation 'commons-io:commons-io:2.6'
 
     // https://github.com/zetbaitsu/Compressor
     implementation 'id.zelory:compressor:3.0.1'
