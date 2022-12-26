@@ -2,7 +2,6 @@ package com.example.compress
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -15,9 +14,6 @@ import com.example.compress.databinding.ActivityMainBinding
 import id.zelory.compressor.Compressor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.apache.commons.io.FileUtils
-import java.io.File
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -33,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         if (result.isSuccessful) {
             result.uriContent?.let { uri ->
                 lifecycleScope.launch(Dispatchers.Main) {
-                    val imageFile = createTempFileFromUri(uri, "temp") ?: return@launch
+                    val imageFile = createTempFileFromUri(uri) ?: return@launch
                     val compressedImage = Compressor.compress(this@MainActivity, imageFile)
 
                     val beforeSize = roundOffDecimal(imageFile.sizeInMb)
@@ -78,31 +74,6 @@ class MainActivity : AppCompatActivity() {
         activityTitle = "Adjust image",
         outputCompressFormat = Bitmap.CompressFormat.PNG
     )
-
-    private suspend fun createTempFileFromUri(uri: Uri, name: String): File? {
-        return withContext(Dispatchers.IO) {
-            try {
-                val ext = try {
-                    uri.toString().substring(uri.toString().lastIndexOf("."))
-                } catch (e: Exception) {
-                    ".png"
-                }
-                val stream = contentResolver.openInputStream(uri)
-                val file = File.createTempFile(name, ext, cacheDir)
-                FileUtils.copyInputStreamToFile(stream, file)
-                file
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
-        }
-    }
-
-    val File.size get() = if (!exists()) 0.0 else length().toDouble()
-    val File.sizeInKb get() = size / 1024
-    val File.sizeInMb get() = sizeInKb / 1024
-    val File.sizeInGb get() = sizeInMb / 1024
-    val File.sizeInTb get() = sizeInGb / 1024
 
     private fun roundOffDecimal(number: Double): Double {
         val df = DecimalFormat("#.##")
