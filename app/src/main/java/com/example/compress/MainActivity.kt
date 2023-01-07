@@ -32,10 +32,10 @@ class MainActivity : AppCompatActivity() {
                     val imageFile = createTempFileFromUri(uri) ?: return@launch
                     val compressedImage = Compressor.compress(this@MainActivity, imageFile)
 
-                    val beforeSize = roundOffDecimal(imageFile.sizeInMb)
-                    val afterSize = roundOffDecimal(compressedImage.sizeInMb)
+                    val beforeSize = imageFile.formatSize
+                    val afterSize = compressedImage.formatSize
 
-                    binding.fileSize.text = "Before size: $beforeSize MB\nAfter size: $afterSize MB"
+                    binding.fileSize.text = "Before size: $beforeSize\nAfter size: $afterSize"
 
                     GlideApp.with(this@MainActivity)
                         .load(compressedImage)
